@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# IDE configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables & sensitive credentials
+.env
+.env.*
+!.env.example
+*.key
+client_secret.json
+!client_secret.json.example
+gemini_api_key.txt
+token.pickle
+token.json
+
+# Logs
+*.log
+thumbnail_designer.log
+
+# Generated heavy media outputs & project working exports
+output/
+Thumbnail_Designer-Program/build/
+Thumbnail_Designer-Program/dist/
+Thumbnail_Designer-Program/exports/
+Thumbnail_Designer-Program/uploads/
+Thumbnail_Designer-Program/projects/
+Thumbnail_Designer-Program/search_res.txt
+tmp/
+temp/
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
