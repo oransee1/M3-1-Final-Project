@@ -27,7 +27,7 @@ from PyQt5.QtCore import Qt, QUrl, QTimer
 from PyQt5.QtGui import QFont, QDesktopServices, QPixmap, QIcon
 from PIL import Image
 
-from src.config import Config, OUTPUT_DIR, ICON_PATH, THUMBNAIL_DESIGNER_DIR, THUMBNAIL_DESIGNER_EXE
+from src.config import Config, OUTPUT_DIR, ICON_PATH, THUMBNAIL_DESIGNER_DIR, THUMBNAIL_DESIGNER_EXE, BASE_DIR, BUNDLE_DIR
 from src.media.image_processor import ImageProcessor
 from src.gui.worker import AutomationWorker
 
@@ -398,16 +398,22 @@ class MainWindow(QMainWindow):
             "Acoustic Guitar"
         ],
         "energy": [
+            "Rock",
             "Glam Rock",
+            "Modern Rock",
             "K-Pop",
             "Electro",
             "Electro House (클럽스타일)",
-            "Eurodance (유로댄스)"
+            "Eurodance (유로댄스)",
+            "EDM",
+            "Dance",
+            "Rap"
         ],
         "focus": [
             "Ambient / Meditation",
             "Cinematic Neoclassical",
-            "Ballad R&B"
+            "Ballad R&B",
+            "Rock Ballad"
         ]
     }
 
@@ -547,10 +553,16 @@ class MainWindow(QMainWindow):
             "Cinematic Neoclassical",
             "Smooth Jazz",
             "Acoustic Guitar",
+            "Rock",
             "Glam Rock",
+            "Modern Rock",
+            "Rock Ballad",
             "Electro",
             "Electro House (클럽스타일)",
             "Eurodance (유로댄스)",
+            "EDM",
+            "Dance",
+            "Rap",
             "K-Pop",
             "Ballad R&B"
         ])
@@ -925,11 +937,13 @@ class MainWindow(QMainWindow):
         exe_path = THUMBNAIL_DESIGNER_EXE
         if not exe_path or not exe_path.exists():
             for cand in [
+                BUNDLE_DIR / "Thumbnail_Designer_Pro.exe",
+                BASE_DIR / "Thumbnail_Designer_Pro.exe",
                 designer_dir / "dist" / "Thumbnail_Designer_Pro.exe",
                 designer_dir / "Thumbnail_Designer_Pro.exe",
                 Path(__file__).resolve().parent.parent.parent / "Thumbnail_Designer-Program" / "dist" / "Thumbnail_Designer_Pro.exe",
             ]:
-                if cand.exists():
+                if cand and cand.exists():
                     exe_path = cand
                     break
 
@@ -944,12 +958,17 @@ class MainWindow(QMainWindow):
             return
 
         run_cmd = None
-        working_dir = designer_dir if designer_dir.exists() else Path.cwd()
+        # 단독 배포 실행 파일(.exe) 모드에서는 임시 폴더(BUNDLE_DIR)가 아닌 프로그램 실행 폴더(BASE_DIR)를 작업 디렉토리로 사용
+        if getattr(sys, "frozen", False):
+            working_dir = BASE_DIR
+        elif designer_dir and designer_dir.exists():
+            working_dir = designer_dir
+        else:
+            working_dir = BASE_DIR if BASE_DIR.exists() else Path.cwd()
 
         if exe_path and exe_path.exists():
             # 독립 실행 파일 모드로 즉시 실행 (Python 인터프리터 불필요)
             run_cmd = [str(exe_path.resolve())]
-            working_dir = exe_path.parent
         else:
             # Python 스크립트 실행 모드
             launcher_script = designer_dir / "launcher.py"
@@ -991,12 +1010,29 @@ class MainWindow(QMainWindow):
             run_cmd = [python_exe, str(launcher_script.resolve())]
 
         try:
-            log_file = working_dir / "thumbnail_designer.log"
-            log_fp = open(log_file, "a", encoding="utf-8")
+            # 배포/작업 폴더에 thumbnail_designer.log 파일이 생성되지 않도록 시스템 임시 디렉토리 사용
+            legacy_log = working_dir / "thumbnail_designer.log"
+            if legacy_log.exists():
+                try:
+                    legacy_log.unlink()
+                except Exception:
+                    pass
+
+            import tempfile
+            log_file = Path(tempfile.gettempdir()) / "aidomus_thumbnail_designer.log"
+            log_fp = open(log_file, "w", encoding="utf-8")
 
             sub_env = os.environ.copy()
-            # PyQt6 서브프로세스가 부모(PyQt5)의 플랫폼 플러그인 경로를 상속받아 충돌하지 않도록 제거
-            sub_env.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
+            # PyInstaller 서브프로세스 완전 격리 (부모 PyQt5 -> 자식 PyQt6 독립 프로세스 충돌 방지)
+            for key in [
+                "_MEIPASS2", "_MEIPASS", "PYTHONPATH", "PYTHONHOME",
+                "QT_QPA_PLATFORM_PLUGIN_PATH", "QT_PLUGIN_PATH", "QT_QPA_PLATFORM"
+            ]:
+                sub_env.pop(key, None)
+
+            # 자식 프로세스가 사용자의 작업 디렉토리를 인식하도록 환경변수 전달
+            sub_env["AIDOMUS_BASE_DIR"] = str(BASE_DIR.resolve())
+            sub_env["AIDOMUS_PROJECT_DIR"] = str(BASE_DIR.resolve())
 
             self.thumbnail_process = subprocess.Popen(
                 run_cmd,
@@ -1005,12 +1041,16 @@ class MainWindow(QMainWindow):
                 stderr=log_fp,
                 env=sub_env
             )
+            # 자식 프로세스에 핸들이 복제/상속되었으므로 부모 측 파일 객체는 즉시 닫아 파일 잠금 방지
+            try:
+                log_fp.close()
+            except Exception:
+                pass
 
-            # 프로세스 초기 크래시 검사 (0.6초 대기)
-            time.sleep(0.6)
+            # 프로세스 초기 크래시 검사 (0.8초 대기)
+            time.sleep(0.8)
             exit_code = self.thumbnail_process.poll()
             if exit_code is not None:
-                log_fp.close()
                 err_text = ""
                 if log_file.exists():
                     try:

@@ -78,12 +78,54 @@ class GeminiPromptAgent:
             "vocal_style": "intimate acoustic folk vocal, heartfelt, soft, warm, natural tone",
             "description": "warm fingerpicking acoustic guitar with intimate folk textures and soothing organic resonance"
         },
+        "Rock": {
+            "primary_tags": "rock, classic rock, hard rock, driving electric guitars, punchy rock drums, powerful rock groove, energetic anthem",
+            "instruments": "distorted electric guitars, roaring guitar riffs, driving bass guitar, solid rock drum kit, dynamic guitar solos",
+            "tempo": "115-130 BPM (Classic Rock)",
+            "vocal_style": "powerful gritty rock vocal, raw energetic delivery, passionate rock belt, anthemic chorus hooks",
+            "description": "energetic and authentic driving rock featuring powerful electric guitar riffs, punchy rock drum beat, heavy bassline, and electrifying anthem energy"
+        },
+        "rock": {
+            "primary_tags": "rock, classic rock, hard rock, driving electric guitars, punchy rock drums, powerful rock groove, energetic anthem",
+            "instruments": "distorted electric guitars, roaring guitar riffs, driving bass guitar, solid rock drum kit, dynamic guitar solos",
+            "tempo": "115-130 BPM (Classic Rock)",
+            "vocal_style": "powerful gritty rock vocal, raw energetic delivery, passionate rock belt, anthemic chorus hooks",
+            "description": "energetic and authentic driving rock featuring powerful electric guitar riffs, punchy rock drum beat, heavy bassline, and electrifying anthem energy"
+        },
         "Glam Rock": {
             "primary_tags": "glam rock, 70s rock, hard rock, energetic electric guitar, stomping rock drums, punchy bass, flamboyant, driving anthem",
             "instruments": "distorted electric guitars, roaring guitar riffs, driving power chords, punchy bass guitar, heavy rock drum kit, energetic vintage synthesizers",
             "tempo": "120-135 BPM",
             "vocal_style": "powerful charismatic rock vocal, theatrical, dynamic, gritty high-energy delivery",
             "description": "flamboyant and energetic 70s glam rock with driving electric guitar riffs, stomping arena beat, and powerful anthem groove"
+        },
+        "Modern Rock": {
+            "primary_tags": "modern rock, alternative rock, indie rock, driving guitars, melodic rock, punchy drums, modern rock anthem, powerful chorus",
+            "instruments": "distorted electric guitars, punchy rock drums, driving bass guitar, melodic guitar riffs, modern rock production, layered guitars",
+            "tempo": "115-130 BPM (Modern Rock)",
+            "vocal_style": "emotive powerful rock vocal, passionate rock belt, modern alternative delivery, melodic rock chorus",
+            "description": "powerful and energetic modern alternative rock with driving electric guitar riffs, punchy drums, emotive melodic vocals, and anthemic chorus hooks"
+        },
+        "Modern rock": {
+            "primary_tags": "modern rock, alternative rock, indie rock, driving guitars, melodic rock, punchy drums, modern rock anthem, powerful chorus",
+            "instruments": "distorted electric guitars, punchy rock drums, driving bass guitar, melodic guitar riffs, modern rock production, layered guitars",
+            "tempo": "115-130 BPM (Modern Rock)",
+            "vocal_style": "emotive powerful rock vocal, passionate rock belt, modern alternative delivery, melodic rock chorus",
+            "description": "powerful and energetic modern alternative rock with driving electric guitar riffs, punchy drums, emotive melodic vocals, and anthemic chorus hooks"
+        },
+        "Rock Ballad": {
+            "primary_tags": "rock ballad, power ballad, emotional rock, soaring electric guitar solo, slow rock, melodic rock, acoustic to electric, heartfelt, dramatic anthem",
+            "instruments": "warm acoustic guitar, emotional piano intro, soaring distorted electric guitar solo, driving rock drums, deep bass guitar, lush strings, dramatic build-up",
+            "tempo": "68-78 BPM (Slow Emotional Power Rock)",
+            "vocal_style": "powerful emotional rock vocal, passionate rock belt, raspy tenor, soaring high notes, dramatic male or female rock delivery",
+            "description": "emotional and powerful rock power ballad featuring a gentle piano and acoustic intro building into explosive distorted guitars, soaring guitar solos, and passionate anthemic vocals"
+        },
+        "Rock ballad": {
+            "primary_tags": "rock ballad, power ballad, emotional rock, soaring electric guitar solo, slow rock, melodic rock, acoustic to electric, heartfelt, dramatic anthem",
+            "instruments": "warm acoustic guitar, emotional piano intro, soaring distorted electric guitar solo, driving rock drums, deep bass guitar, lush strings, dramatic build-up",
+            "tempo": "68-78 BPM (Slow Emotional Power Rock)",
+            "vocal_style": "powerful emotional rock vocal, passionate rock belt, raspy tenor, soaring high notes, dramatic male or female rock delivery",
+            "description": "emotional and powerful rock power ballad featuring a gentle piano and acoustic intro building into explosive distorted guitars, soaring guitar solos, and passionate anthemic vocals"
         },
         "Electro": {
             "primary_tags": "electro, electronic, synthwave, electro house, energetic synth, punchy electronic beat, bassline, futuristic, cyber groove",
@@ -134,6 +176,27 @@ class GeminiPromptAgent:
             "vocal_style": "powerful uplifting female diva vocal, energetic dance-pop hook, catchy eurodance chorus, rhythmic vocal chant",
             "description": "infectious high-energy 90s eurodance anthem with pumping four-on-the-floor kick, bouncy bassline, euphoric piano stabs, and irresistible uplifting dance hook"
         },
+        "EDM": {
+            "primary_tags": "edm, electronic dance music, festival edm, progressive house, energetic drops, heavy synth, pumping beat, club anthem, euphoric festival",
+            "instruments": "pumping sub bass, huge supersaw synth leads, dramatic riser build-ups, punchy 808/909 kick, snappy claps, sidechained pads, vocal drops",
+            "tempo": "128 BPM (Festival EDM)",
+            "vocal_style": "energetic festival vocal, catchy melodic vocal chops, uplifting anthem chorus, high-energy party delivery",
+            "description": "explosive and euphoric festival EDM with massive synthesizer drops, driving four-on-the-floor beat, and exhilarating festival energy"
+        },
+        "Dance": {
+            "primary_tags": "dance, dance-pop, club dance, upbeat electronic pop, catchy synth hooks, infectious rhythm, energetic groove, disco pop",
+            "instruments": "bright synth leads, funky slap bassline, rhythmic dance groove drums, crisp hi-hats, shimmer keyboards, upbeat rhythm guitar",
+            "tempo": "120-125 BPM",
+            "vocal_style": "bright energetic pop vocal, catchy dance melody, infectious hook, charismatic rhythmic singing",
+            "description": "catchy and uplifting dance-pop groove with infectious rhythm, sparkling synths, bouncy bassline, and party-ready melodies"
+        },
+        "Rap": {
+            "primary_tags": "rap, hip-hop, trap beat, boom bap, rhythmic flow, heavy 808 bass, punchy drums, street swagger, lyrical",
+            "instruments": "heavy 808 sub bass, tight punchy snare, rolling hi-hat triplets, dark melodic synth keys, sampled vinyl chops",
+            "tempo": "85-95 BPM (Trap/Hip-Hop)",
+            "vocal_style": "confident rap flow, tight rhythmic cadences, charismatic delivery, dynamic punchlines, melodic hook",
+            "description": "dynamic and hard-hitting rap track featuring rolling trap hi-hats, booming 808 sub bass, and rhythmic confident lyrical flow"
+        },
     }
 
     def get_all_free_models(self) -> list:
@@ -167,10 +230,24 @@ class GeminiPromptAgent:
             g_lower = genre.lower()
             if any(w in g_lower for w in ["house", "클럽", "쿨럽"]):
                 genre_info = self.GENRE_PROFILES.get("Electro House (클럽스타일)")
+            elif any(w in g_lower for w in ["modern rock", "모던락", "모던 락"]):
+                genre_info = self.GENRE_PROFILES.get("Modern Rock")
+            elif any(w in g_lower for w in ["rock ballad", "락발라드", "락 발라드", "power ballad", "파워발라드"]):
+                genre_info = self.GENRE_PROFILES.get("Rock Ballad")
+            elif any(w in g_lower for w in ["glam rock", "글램락", "글램 락"]):
+                genre_info = self.GENRE_PROFILES.get("Glam Rock")
+            elif any(w in g_lower for w in ["rock", "락", "록"]):
+                genre_info = self.GENRE_PROFILES.get("Rock")
             elif any(w in g_lower for w in ["발라", "r&b", "rnb"]):
                 genre_info = self.GENRE_PROFILES.get("Ballad R&B")
             elif any(w in g_lower for w in ["eurodance", "euro dance", "유로댄스"]):
                 genre_info = self.GENRE_PROFILES.get("Eurodance (유로댄스)")
+            elif any(w in g_lower for w in ["edm", "일렉트로닉 댄스"]):
+                genre_info = self.GENRE_PROFILES.get("EDM")
+            elif any(w in g_lower for w in ["dance", "댄스"]):
+                genre_info = self.GENRE_PROFILES.get("Dance")
+            elif any(w in g_lower for w in ["rap", "hip-hop", "hiphop", "힙합", "랩"]):
+                genre_info = self.GENRE_PROFILES.get("Rap")
         if not genre_info:
             for k, v in self.GENRE_PROFILES.items():
                 if k.lower() in genre.lower() or any(w.lower() in genre.lower() for w in k.split()):
@@ -435,10 +512,24 @@ class GeminiPromptAgent:
             g_lower = genre.lower()
             if any(w in g_lower for w in ["house", "클럽", "쿨럽"]):
                 genre_info = cls.GENRE_PROFILES.get("Electro House (클럽스타일)")
+            elif any(w in g_lower for w in ["modern rock", "모던락", "모던 락"]):
+                genre_info = cls.GENRE_PROFILES.get("Modern Rock")
+            elif any(w in g_lower for w in ["rock ballad", "락발라드", "락 발라드", "power ballad", "파워발라드"]):
+                genre_info = cls.GENRE_PROFILES.get("Rock Ballad")
+            elif any(w in g_lower for w in ["glam rock", "글램락", "글램 락"]):
+                genre_info = cls.GENRE_PROFILES.get("Glam Rock")
+            elif any(w in g_lower for w in ["rock", "락", "록"]):
+                genre_info = cls.GENRE_PROFILES.get("Rock")
             elif any(w in g_lower for w in ["발라", "r&b", "rnb"]):
                 genre_info = cls.GENRE_PROFILES.get("Ballad R&B")
             elif any(w in g_lower for w in ["eurodance", "euro dance", "유로댄스"]):
                 genre_info = cls.GENRE_PROFILES.get("Eurodance (유로댄스)")
+            elif any(w in g_lower for w in ["edm", "일렉트로닉 댄스"]):
+                genre_info = cls.GENRE_PROFILES.get("EDM")
+            elif any(w in g_lower for w in ["dance", "댄스"]):
+                genre_info = cls.GENRE_PROFILES.get("Dance")
+            elif any(w in g_lower for w in ["rap", "hip-hop", "hiphop", "힙합", "랩"]):
+                genre_info = cls.GENRE_PROFILES.get("Rap")
         if not genre_info:
             for k, v in cls.GENRE_PROFILES.items():
                 if k.lower() in genre.lower() or any(w.lower() in genre.lower() for w in k.split()):
@@ -468,13 +559,25 @@ class GeminiPromptAgent:
     @classmethod
     def _smart_fallback_plan(cls, mood: str, genre: str, is_instrumental: bool, custom_lyrics: str = "", image_style: str = "photo") -> dict:
         """Gemini 서버 일시 부하(503) 시에도 제작이 중단되지 않도록 하는 지능형 백업 플래너 (장르별 맞춤 악기 완벽 적용)"""
-        is_rock = "rock" in genre.lower()
+        is_modern_rock = any(w in genre.lower() for w in ["modern rock", "모던락", "모던 락"])
+        is_rock_ballad = any(w in genre.lower() for w in ["rock ballad", "락발라드", "락 발라드", "power ballad", "파워발라드"])
+        is_glam_rock = any(w in genre.lower() for w in ["glam rock", "글램락", "글램 락"])
+        is_rock = ("rock" in genre.lower() or "락" in genre or "록" in genre) and not is_modern_rock and not is_rock_ballad and not is_glam_rock
         is_house = any(w in genre.lower() for w in ["house", "클럽", "쿨럽"])
         is_eurodance = any(w in genre.lower() for w in ["eurodance", "euro dance", "유로댄스"])
-        is_electro = any(w in genre.lower() for w in ["electro", "electronic", "edm", "synthwave"]) and not is_house and not is_eurodance
+        is_edm = "edm" in genre.lower()
+        is_dance = ("dance" in genre.lower() or "댄스" in genre.lower()) and not is_eurodance
+        is_rap = any(w in genre.lower() for w in ["rap", "hip-hop", "hiphop", "힙합", "랩"])
+        is_electro = any(w in genre.lower() for w in ["electro", "electronic", "synthwave"]) and not is_house and not is_eurodance and not is_edm and not is_dance
         is_kpop = any(w in genre.lower() for w in ["k-pop", "kpop", "korean pop"])
-        is_rnb = any(w in genre.lower() for w in ["r&b", "rnb", "ballad", "발라"])
-        if is_kpop:
+        is_rnb = any(w in genre.lower() for w in ["r&b", "rnb", "발라"]) and not is_rock_ballad
+        if is_rock_ballad:
+            title = f"Rock Ballad - Tears of the Guitar"
+        elif is_modern_rock:
+            title = f"Modern Rock - Echoes of Freedom"
+        elif is_glam_rock:
+            title = f"Glam Rock - Starlight Anthem"
+        elif is_kpop:
             title = f"K-Pop - Starlight Dance"
         elif is_rnb:
             title = f"Ballad R&B - Soulful Whispers"
@@ -482,6 +585,12 @@ class GeminiPromptAgent:
             title = f"Electro House - Midnight Club Anthem"
         elif is_eurodance:
             title = f"Eurodance - Euphoria Night Anthem"
+        elif is_edm:
+            title = f"EDM - Festival Energy Drop"
+        elif is_dance:
+            title = f"Dance - Starlight Party Groove"
+        elif is_rap:
+            title = f"Rap - Street Beat & Flow"
         elif is_rock:
             title = f"{genre.split('/')[0].strip()} - Electric Anthem"
         elif is_electro:
@@ -494,10 +603,24 @@ class GeminiPromptAgent:
             g_lower = genre.lower()
             if any(w in g_lower for w in ["house", "클럽", "쿨럽"]):
                 genre_info = cls.GENRE_PROFILES.get("Electro House (클럽스타일)")
+            elif any(w in g_lower for w in ["modern rock", "모던락", "모던 락"]):
+                genre_info = cls.GENRE_PROFILES.get("Modern Rock")
+            elif any(w in g_lower for w in ["rock ballad", "락발라드", "락 발라드", "power ballad", "파워발라드"]):
+                genre_info = cls.GENRE_PROFILES.get("Rock Ballad")
+            elif any(w in g_lower for w in ["glam rock", "글램락", "글램 락"]):
+                genre_info = cls.GENRE_PROFILES.get("Glam Rock")
+            elif any(w in g_lower for w in ["rock", "락", "록"]):
+                genre_info = cls.GENRE_PROFILES.get("Rock")
             elif any(w in g_lower for w in ["발라", "r&b", "rnb"]):
                 genre_info = cls.GENRE_PROFILES.get("Ballad R&B")
             elif any(w in g_lower for w in ["eurodance", "euro dance", "유로댄스"]):
                 genre_info = cls.GENRE_PROFILES.get("Eurodance (유로댄스)")
+            elif any(w in g_lower for w in ["edm", "일렉트로닉 댄스"]):
+                genre_info = cls.GENRE_PROFILES.get("EDM")
+            elif any(w in g_lower for w in ["dance", "댄스"]):
+                genre_info = cls.GENRE_PROFILES.get("Dance")
+            elif any(w in g_lower for w in ["rap", "hip-hop", "hiphop", "힙합", "랩"]):
+                genre_info = cls.GENRE_PROFILES.get("Rap")
         if not genre_info:
             for k, v in cls.GENRE_PROFILES.items():
                 if k.lower() in genre.lower() or any(w.lower() in genre.lower() for w in k.split()):
@@ -536,6 +659,36 @@ class GeminiPromptAgent:
                     f"Fast-paced 90s eurodance party atmosphere, instrumental, bright uplifting piano chords, bouncy rhythm, no vocals. {tempo_desc}."
                 )
                 suno_style = f"{primary_tags}, instrumental, uplifting eurodance"
+            elif is_edm:
+                suno_prompt = (
+                    f"Massive euphoric {genre_desc}, featuring {inst_desc}. "
+                    f"Explosive festival EDM atmosphere, instrumental, huge build-up and drop, heavy bass, no vocals. {tempo_desc}."
+                )
+                suno_style = f"{primary_tags}, instrumental, festival banger, huge drop"
+            elif is_dance:
+                suno_prompt = (
+                    f"Upbeat infectious {genre_desc}, featuring {inst_desc}. "
+                    f"Vibrant dance-pop party atmosphere, instrumental, catchy rhythm, bouncy groove, no vocals. {tempo_desc}."
+                )
+                suno_style = f"{primary_tags}, instrumental, dance pop groove"
+            elif is_rap:
+                suno_prompt = (
+                    f"Punchy hard-hitting {genre_desc}, featuring {inst_desc}. "
+                    f"Urban hip-hop beat atmosphere, instrumental, booming 808 bass, rolling hi-hats, no vocals. {tempo_desc}."
+                )
+                suno_style = f"{primary_tags}, instrumental, trap beat, boom bap"
+            elif is_modern_rock:
+                suno_prompt = (
+                    f"Driving and emotional {genre_desc}, featuring {inst_desc}. "
+                    f"Modern alternative rock anthem atmosphere, instrumental, punchy live drums, melodic guitar riffs, no vocals. {tempo_desc}."
+                )
+                suno_style = f"{primary_tags}, instrumental, modern rock anthem"
+            elif is_rock_ballad:
+                suno_prompt = (
+                    f"Emotional and dramatic {genre_desc}, featuring {inst_desc}. "
+                    f"Slow power rock ballad atmosphere, instrumental, emotional guitar weeping solos, dramatic building rhythm, no vocals. {tempo_desc}."
+                )
+                suno_style = f"{primary_tags}, instrumental, power rock ballad, soaring guitar"
             elif is_rock or is_electro:
                 genre_type = "electronic club" if is_electro else "rock"
                 anthem_tag = "cyber groove" if is_electro else "driving anthem"
@@ -630,6 +783,76 @@ class GeminiPromptAgent:
                     )
                     vocal_style = genre_info["vocal_style"]
                     suno_style = f"{primary_tags}, {vocal_style}, eurodance anthem"
+                elif is_edm:
+                    suno_prompt = (
+                        f"[Intro]\n"
+                        f"Feel the energy rising in the air\n"
+                        f"Hands up high, we are already there\n\n"
+                        f"[Verse 1]\n"
+                        f"The bass vibrates underneath the floor\n"
+                        f"Crowd goes wild screaming out for more\n"
+                        f"Lasers cutting through the smoke and haze\n"
+                        f"Lost together in this neon maze\n\n"
+                        f"[Build Up]\n"
+                        f"Feel the tension rising to the sky\n"
+                        f"Ready for the moment, let it fly!\n"
+                        f"Three, two, one, drop the beat!\n\n"
+                        f"[Drop / Chorus]\n"
+                        f"Ignite the night, set the world on fire!\n"
+                        f"Take the frequency higher and higher!\n"
+                        f"EDM heartbeat pulsing in your soul!\n"
+                        f"Let the rhythm take complete control!\n\n"
+                        f"[Outro]\n"
+                        f"Echoes of the drop, rave forever..."
+                    )
+                    vocal_style = genre_info["vocal_style"]
+                    suno_style = f"{primary_tags}, {vocal_style}, festival anthem"
+                elif is_dance:
+                    suno_prompt = (
+                        f"[Intro]\n"
+                        f"Yeah! Come on, let's dance!\n\n"
+                        f"[Verse 1]\n"
+                        f"Sparkling lights reflecting in your eyes\n"
+                        f"No more sorrows, no more compromise\n"
+                        f"Step onto the floor and feel the groove\n"
+                        f"Nothing's gonna stop the way we move\n\n"
+                        f"[Chorus]\n"
+                        f"Dance, dance, until the morning light\n"
+                        f"Music makes everything feel so right\n"
+                        f"Feel the good vibrations, clap your hands\n"
+                        f"The best party in the promised lands!\n\n"
+                        f"[Verse 2]\n"
+                        f"Groovy bassline keeping up the pace\n"
+                        f"Big bright smiles on everybody's face\n"
+                        f"Round and round the mirrorball spins slow\n"
+                        f"Catch the rhythm, let the energy glow\n\n"
+                        f"[Outro]\n"
+                        f"Keep on dancing, all night long!"
+                    )
+                    vocal_style = genre_info["vocal_style"]
+                    suno_style = f"{primary_tags}, {vocal_style}, dance pop anthem"
+                elif is_rap:
+                    suno_prompt = (
+                        f"[Intro]\n"
+                        f"Yeah, mic check 1-2, 808 booming in the trunk\n"
+                        f"AI Domus on the track, listen up.\n\n"
+                        f"[Verse 1]\n"
+                        f"City lights flicker through the midnight rain\n"
+                        f"Turn the hard struggle right into the gain\n"
+                        f"Rhythm and rhyme flowing straight from the heart\n"
+                        f"Knew what I wanted right from the start\n"
+                        f"Fast lane grinding never press on the brake\n"
+                        f"Real recognize real, no time for the fake\n\n"
+                        f"[Chorus]\n"
+                        f"Catch the rhythm, ride the heavy flow\n"
+                        f"Started from the block, now we watch it grow\n"
+                        f"Bass drops heavy shaking up the ground\n"
+                        f"Unstoppable energy, king of the sound!\n\n"
+                        f"[Outro]\n"
+                        f"Mic drop, keep the flow alive. Yeah."
+                    )
+                    vocal_style = genre_info["vocal_style"]
+                    suno_style = f"{primary_tags}, {vocal_style}, lyrical rap flow"
                 elif is_electro:
                     suno_prompt = (
                         f"[Verse 1]\n"
@@ -647,6 +870,44 @@ class GeminiPromptAgent:
                     )
                     vocal_style = genre_info["vocal_style"]
                     suno_style = f"{primary_tags}, {vocal_style}, electro anthem"
+                elif is_modern_rock:
+                    suno_prompt = (
+                        f"[Verse 1]\n"
+                        f"Shadows stretching down an open road\n"
+                        f"Carrying the weight of a heavy load\n"
+                        f"Electric whispers cutting through the gray\n"
+                        f"Chasing the dawn of a brand new day\n\n"
+                        f"[Chorus]\n"
+                        f"Break the silence, let the guitars scream\n"
+                        f"Standing on the edge of a modern dream\n"
+                        f"Feel the fire burning deep within our chest\n"
+                        f"We will never stop until we pass the test!\n\n"
+                        f"[Outro]\n"
+                        f"Yeah, this is our modern rock!"
+                    )
+                    vocal_style = genre_info["vocal_style"]
+                    suno_style = f"{primary_tags}, {vocal_style}, modern rock anthem"
+                elif is_rock_ballad:
+                    suno_prompt = (
+                        f"[Intro]\n"
+                        f"(Gentle piano and acoustic guitar intro building into slow heavy drums)\n\n"
+                        f"[Verse 1]\n"
+                        f"Looking out at the autumn sky so gray\n"
+                        f"Counting the memories that won't fade away\n"
+                        f"Your voice still echoes in the midnight rain\n"
+                        f"Trying to find peace through all the hidden pain\n\n"
+                        f"[Chorus]\n"
+                        f"Reaching for you through the stormy night\n"
+                        f"Holding on to your fading light\n"
+                        f"Crying guitar in the freezing wind\n"
+                        f"I will love you until the bitter end!\n\n"
+                        f"[Guitar Solo]\n"
+                        f"(Soaring emotional electric guitar solo, weeping bends)\n\n"
+                        f"[Outro]\n"
+                        f"Forever in my heart... forever you."
+                    )
+                    vocal_style = genre_info["vocal_style"]
+                    suno_style = f"{primary_tags}, {vocal_style}, dramatic rock ballad"
                 elif is_rock:
                     suno_prompt = (
                         f"[Verse 1]\n"

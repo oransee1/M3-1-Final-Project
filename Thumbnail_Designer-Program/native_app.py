@@ -14,7 +14,13 @@ import os
 
 if getattr(sys, 'frozen', False):
     RESOURCE_DIR = sys._MEIPASS
-    BASE_DIR = os.path.dirname(sys.executable)
+    env_base = os.environ.get("AIDOMUS_BASE_DIR") or os.environ.get("AIDOMUS_PROJECT_DIR")
+    if env_base and os.path.exists(env_base):
+        BASE_DIR = env_base
+    elif os.path.exists(os.path.join(os.getcwd(), "Thumbnail_Template")) or os.path.exists(os.path.join(os.getcwd(), "output")):
+        BASE_DIR = os.getcwd()
+    else:
+        BASE_DIR = os.path.dirname(sys.executable)
 else:
     RESOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
     BASE_DIR = RESOURCE_DIR
@@ -85,9 +91,14 @@ try:
 except ImportError:
     QTextToSpeech = None
 
-PROJECTS_DIR = os.path.join(BASE_DIR, "projects")
-EXPORTS_DIR = os.path.join(BASE_DIR, "exports")
-UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+# 프로젝트/템플릿 디렉토리: Thumbnail_Template 폴더 우선, 없으면 BASE_DIR (projects 폴더 미생성)
+tpl_dir_path = os.path.join(BASE_DIR, "Thumbnail_Template")
+PROJECTS_DIR = tpl_dir_path if os.path.exists(tpl_dir_path) else BASE_DIR
+
+# 썸네일/영상 내보내기 디렉토리: AI Domus 표준 output 폴더 우선, 없으면 BASE_DIR (exports 폴더 미생성)
+out_dir_path = os.path.join(BASE_DIR, "output")
+EXPORTS_DIR = out_dir_path if os.path.exists(out_dir_path) else BASE_DIR
+
 CUSTOM_FONTS_DIR = os.path.join(
     os.environ.get("LOCALAPPDATA", os.path.expanduser(r"~\AppData\Local")),
     "Microsoft", "Windows", "Fonts"
@@ -96,10 +107,7 @@ CLIENT_SECRETS_FILE = os.path.join(BASE_DIR, "client_secret.json")
 if not os.path.exists(CLIENT_SECRETS_FILE):
     CLIENT_SECRETS_FILE = os.path.join(RESOURCE_DIR, "client_secret.json")
 YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload", "https://www.googleapis.com/auth/youtube"]
-
-os.makedirs(PROJECTS_DIR, exist_ok=True)
-os.makedirs(EXPORTS_DIR, exist_ok=True)
-os.makedirs(UPLOADS_DIR, exist_ok=True)
+# 필요 없는 폴더들(exports, projects, uploads)은 시작 시 생성하지 않음
 
 DARK_STYLESHEET = """
 QMainWindow, QDialog {
@@ -1348,6 +1356,7 @@ class YouTubeUploadDialog(QDialog):
                 self.tts = QTextToSpeech(self)
             except Exception:
                 self.tts = None
+        self.last_gemini_reply = ""
         self.init_ui()
 
     def init_ui(self):
@@ -1397,6 +1406,28 @@ class YouTubeUploadDialog(QDialog):
         chat_input_layout.addWidget(self.chat_send_btn)
         
         left_box.addLayout(chat_input_layout)
+
+        # 메세지 입력창 아래 '내용 복사' 버튼 (클립보드 복사 및 동영상 설명란 자동 반영)
+        self.chat_copy_btn = QPushButton("📋 내용 복사")
+        self.chat_copy_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #1e3a8a;
+                color: #ffffff;
+                font-weight: bold;
+                padding: 6px 12px;
+                border-radius: 4px;
+                border: 1px solid #3b82f6;
+            }
+            QPushButton:hover {
+                background-color: #2563eb;
+            }
+            QPushButton:pressed {
+                background-color: #1d4ed8;
+            }
+        """)
+        self.chat_copy_btn.setToolTip("챗봇 내용(또는 드래그하여 선택한 영역)을 클립보드로 복사하고 동영상 설명(Description)란에 자동으로 입력합니다.")
+        self.chat_copy_btn.clicked.connect(self.copy_gemini_content_to_description)
+        left_box.addWidget(self.chat_copy_btn)
 
         grid.addLayout(left_box, 0, 0, 10, 1)
 
@@ -1461,12 +1492,22 @@ class YouTubeUploadDialog(QDialog):
         self.video_combo.addItem("선택 안 함 (영상 없음)")
         self.thumb_combo.addItem("현재 작업중인 캔버스 (기본)")
         
-        if os.path.exists(EXPORTS_DIR):
-            for f in sorted(os.listdir(EXPORTS_DIR), reverse=True):
-                if f.lower().endswith(('.mp4', '.avi')):
-                    self.video_combo.addItem(f)
-                elif f.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    self.thumb_combo.addItem(f)
+        search_dirs = [EXPORTS_DIR]
+        out_dir = os.path.join(BASE_DIR, "output")
+        if os.path.exists(out_dir) and out_dir not in search_dirs:
+            search_dirs.append(out_dir)
+
+        seen_videos = set()
+        seen_thumbs = set()
+        for s_dir in search_dirs:
+            if os.path.exists(s_dir):
+                for f in sorted(os.listdir(s_dir), reverse=True):
+                    if f.lower().endswith(('.mp4', '.avi')) and f not in seen_videos:
+                        self.video_combo.addItem(f)
+                        seen_videos.add(f)
+                    elif f.lower().endswith(('.png', '.jpg', '.jpeg')) and f not in seen_thumbs:
+                        self.thumb_combo.addItem(f)
+                        seen_thumbs.add(f)
                     
         self.update_thumb_preview(self.thumb_combo.currentText())
 
@@ -1476,6 +1517,10 @@ class YouTubeUploadDialog(QDialog):
             self.thumb_preview.setPixmap(QPixmap.fromImage(qimg).scaled(280, 158, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         elif text and text != "선택 안 함 (영상 없음)":
             filepath = os.path.join(EXPORTS_DIR, text)
+            if not os.path.exists(filepath):
+                alt_path = os.path.join(BASE_DIR, "output", text)
+                if os.path.exists(alt_path):
+                    filepath = alt_path
             if os.path.exists(filepath):
                 pix = QPixmap(filepath)
                 self.thumb_preview.setPixmap(pix.scaled(280, 158, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
@@ -1493,8 +1538,12 @@ class YouTubeUploadDialog(QDialog):
 
         video_path = os.path.join(EXPORTS_DIR, vid_file)
         if not os.path.exists(video_path):
-            QMessageBox.warning(self, "오류", "선택한 영상 파일을 찾을 수 없습니다.")
-            return
+            alt_path = os.path.join(BASE_DIR, "output", vid_file)
+            if os.path.exists(alt_path):
+                video_path = alt_path
+            else:
+                QMessageBox.warning(self, "오류", "선택한 영상 파일을 찾을 수 없습니다.")
+                return
 
         self.upload_btn.setEnabled(False)
         self.progress_bar.setVisible(True)
@@ -1626,7 +1675,8 @@ class YouTubeUploadDialog(QDialog):
             if thm_file == "현재 작업중인 캔버스 (기본)":
                 # 고해상도 FHD 1080p (1.5x, 1920x1080)로 선명하게 렌더링하고 유튜브 2MB 한도 내로 최적화
                 qimg = self.canvas.export_qimage(1.5)
-                thumb_path = os.path.join(EXPORTS_DIR, "temp_upload_thumb.jpg")
+                import tempfile
+                thumb_path = os.path.join(tempfile.gettempdir(), "aidomus_temp_upload_thumb.jpg")
                 quality = 95
                 qimg.save(thumb_path, "JPG", quality)
                 # 유튜브 썸네일 최대 파일 크기는 2MB 제한
@@ -1635,6 +1685,10 @@ class YouTubeUploadDialog(QDialog):
                     qimg.save(thumb_path, "JPG", quality)
             elif thm_file != "선택 안 함 (영상 없음)":
                 thumb_path = os.path.join(EXPORTS_DIR, thm_file)
+                if not os.path.exists(thumb_path):
+                    alt_thumb = os.path.join(BASE_DIR, "output", thm_file)
+                    if os.path.exists(alt_thumb):
+                        thumb_path = alt_thumb
 
             if thumb_path and os.path.exists(thumb_path):
                 try:
@@ -1811,11 +1865,57 @@ class YouTubeUploadDialog(QDialog):
         self.gemini_worker.start()
 
     def on_gemini_reply(self, text):
+        self.last_gemini_reply = text.strip()
         formatted_text = text.replace('\n', '<br>')
         self.chat_history.append(f"<b style='color:#34c759;'>Gemini:</b> {formatted_text}<br><br>")
         self.chat_send_btn.setEnabled(True)
         self.chat_input.setEnabled(True)
         self.chat_input.setFocus()
+
+    def copy_gemini_content_to_description(self):
+        # 1. 챗봇 대화창에서 마우스로 드래그 선택한 텍스트 우선 확인 (기존 드래그 복사 방식 연동)
+        selected = self.chat_history.textCursor().selectedText().replace('\u2029', '\n').strip()
+        
+        target_text = ""
+        if selected:
+            target_text = selected
+        elif self.last_gemini_reply:
+            target_text = self.last_gemini_reply
+        else:
+            # 보조: chat_history 텍스트 중 Gemini 답변 부분 추출 시도
+            plain = self.chat_history.toPlainText().strip()
+            if plain:
+                if "Gemini:" in plain:
+                    target_text = plain.split("Gemini:")[-1].strip()
+                else:
+                    target_text = plain
+
+        if not target_text:
+            QMessageBox.information(
+                self,
+                "안내",
+                "복사할 챗봇 내용이 없습니다.\n먼저 메시지를 전송하여 Gemini AI의 추천 답변을 받아보세요."
+            )
+            return
+
+        # 2. 동영상 설명 (Description) 입력창에 자동 복사(붙여넣기)
+        self.desc_input.setPlainText(target_text)
+
+        # 3. 클립보드로 복사 (예외 안전 처리)
+        try:
+            clipboard = QApplication.clipboard()
+            if clipboard:
+                clipboard.setText(target_text)
+        except Exception:
+            pass
+
+        # 4. 피드백 표시 (상태 라벨 및 버튼 텍스트 변경)
+        if hasattr(self, 'status_label') and self.status_label:
+            self.status_label.setText("✅ 챗봇 내용이 클립보드에 복사되었으며, 동영상 설명(Description)란에 자동 입력되었습니다.")
+        
+        orig_text = self.chat_copy_btn.text()
+        self.chat_copy_btn.setText("✅ 복사 및 설명란 입력 완료!")
+        QTimer.singleShot(1500, lambda: self.chat_copy_btn.setText(orig_text))
 
     def on_gemini_error(self, err):
         self.chat_history.append(f"<b style='color:#ff3b30;'>오류:</b> {err}<br><br>")
@@ -2911,7 +3011,8 @@ class NativeThumbnailDesignerApp(QMainWindow):
 
     def save_project(self):
         current_tab_name = self.tab_bar.tabText(self.tab_bar.currentIndex()) if self.tab_bar.count() > 0 else "Untitled"
-        default_path = os.path.join(PROJECTS_DIR, f"{current_tab_name}.tdp")
+        default_dir = PROJECTS_DIR if os.path.exists(PROJECTS_DIR) else BASE_DIR
+        default_path = os.path.join(default_dir, f"{current_tab_name}.tdp")
         filepath, _ = QFileDialog.getSaveFileName(
             self, "프로젝트 저장 (Save Project)", default_path,
             "TDP Project (*.tdp)",
@@ -2930,8 +3031,12 @@ class NativeThumbnailDesignerApp(QMainWindow):
             QMessageBox.critical(self, "저장 오류", f"프로젝트 저장 중 오류가 발생했습니다:\n{str(e)}")
 
     def load_project(self):
+        initial_dir = PROJECTS_DIR if os.path.exists(PROJECTS_DIR) else BASE_DIR
+        tpl_dir = os.path.join(BASE_DIR, "Thumbnail_Template")
+        if os.path.exists(tpl_dir):
+            initial_dir = tpl_dir
         filepath, _ = QFileDialog.getOpenFileName(
-            self, "프로젝트 열기 (Open Project)", PROJECTS_DIR,
+            self, "프로젝트 열기 (Open Project)", initial_dir,
             "TDP Project (*.tdp)",
             options=QFileDialog.Option.DontUseNativeDialog
         )
@@ -2975,7 +3080,8 @@ class NativeThumbnailDesignerApp(QMainWindow):
 
         ext = ".jpg" if is_jpeg else ".png"
         default_name = f"{self.canvas.active_tab_name}{ext}"
-        default_path = os.path.join(EXPORTS_DIR, default_name)
+        default_dir = EXPORTS_DIR if os.path.exists(EXPORTS_DIR) else BASE_DIR
+        default_path = os.path.join(default_dir, default_name)
 
         filepath, _ = QFileDialog.getSaveFileName(
             self, "썸네일 내보내기 (Save Thumbnail)", default_path,
@@ -3041,9 +3147,10 @@ class NativeThumbnailDesignerApp(QMainWindow):
             return
             
         success_count = 0
+        target_dir = EXPORTS_DIR if os.path.exists(EXPORTS_DIR) else BASE_DIR
         for fp in filepaths:
             try:
-                dest = os.path.join(EXPORTS_DIR, os.path.basename(fp))
+                dest = os.path.join(target_dir, os.path.basename(fp))
                 shutil.copy2(fp, dest)
                 success_count += 1
             except Exception as e:

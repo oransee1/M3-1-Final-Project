@@ -2,6 +2,8 @@
 
 > **단 한 번의 클릭으로 기획 의도(무드) 입력부터 Suno 음악 생성, Nano Banana 3x3 스토리보드 이미지 생성, 9분할 자동 크롭, 1080p 유튜브용 MP4 비디오 렌더링까지 전 과정을 전자동으로 처리하는 원스톱 AI 미디어 스튜디오입니다.**
 
+🌐 **발표 웹사이트 주소 : https://final-presentation-webpage.vercel.app/**
+
 ---
 
 ## 1. 프로젝트 소개
@@ -115,6 +117,7 @@ python main.py
 ---
 
 ## 8. 링크 및 산출물
+- **발표 웹사이트 주소 : https://final-presentation-webpage.vercel.app/**
 - **프로젝트 기획서**: [docs/01_PROJECT_PROPOSAL.md](docs/01_PROJECT_PROPOSAL.md)
 - **요구사항 명세서**: [docs/02_REQUIREMENTS_SPEC.md](docs/02_REQUIREMENTS_SPEC.md)
 - **배포 실행 파일 (.exe)**: [Releases 페이지 링크]
